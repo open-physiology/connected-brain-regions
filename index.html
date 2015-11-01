@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>connected-brain-regions</title>
+</head>
+<body>
+<div align="center">
+    <h1>Connected Brain Regions</h1>
+    <p>Using minimal Steiner trees to find the best connections between a given set of brain regions</p>
+    <table border="1px">
+        <tr>
+            <th>Set of Brain Regions</th>
+            <th>Visualization of Steiner Tree</th>
+        </tr>
+        <tr>
+            <td>
+                <div id="brainlist" style="width:300px; height:700px; overflow-x: scroll; overflow-y: scroll"></div>
+                <div id="graphcalc"><button id="calculate">Calculate</button></div>
+            </td>
+            <td id="graph" width="1200" height="700">
+                <svg id="svgVisualize" width="1200" height="700"></svg>
+            </td>
+        </tr>
+    </table>
+</div>
+<!--jquery library from CDN-->
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+<!--load the main script-->
+<svg id="svgVisualize" width="1200" height="700"></svg>
+<script src="index.js"></script>
+</body>
+</html>
