@@ -9,7 +9,8 @@ xmlhttp.open("GET", "data.json");
 xmlhttp.onreadystatechange = function () {
     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         var data = JSON.parse(xmlhttp.responseText);
-        var i, checkbox, label;
+        var i, button, checkbox, label;
+        var s = [], count = 0;;
         //console.log(data["nodes"].length);
         //console.log(data["edges"].length);
         for (i = 0; i < data["nodes"].length; i++) {
@@ -19,6 +20,20 @@ xmlhttp.onreadystatechange = function () {
 
             label = document.createElement("output");
             label.appendChild(document.createTextNode(checkbox.id));
+
+            checkbox.onclick = function(){
+                s[count] = this.id;
+                count++;
+            }
+
+            button = document.getElementById("calculate");
+            var gdata = document.getElementById("graph");
+            button.onclick = function () {
+                for(i = 0; i < count; i++) {
+                    gdata.appendChild(document.createTextNode(s[i]));
+                    gdata.appendChild(document.createElement("br"));
+                }
+            }
 
             brainList.appendChild(checkbox);
             brainList.appendChild(label);
