@@ -3,6 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>connected-brain-regions</title>
+    <style>
+        path.link {
+            fill: none;
+            stroke: #666;
+            stroke-width: 1.5px;
+        }
+
+        circle {
+            fill: #ccc;
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        text {
+            fill: #000;
+            font: 10px sans-serif;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 <div align="center">
@@ -18,18 +37,17 @@
                 <div id="brainlist" style="width:300px; height:700px; overflow-x: scroll; overflow-y: scroll"></div>
                 <div id="graphcalc"><button id="calculate">Calculate</button></div>
             </td>
-            <td>
-                <div id="graph" style="width: 1200px; height: 700px"></div>
-                <!--<svg id="svgVisualize" width="1200" height="700"></svg>-->
+            <td id="graph" width="1200" height="700"> <!--width="500" height="400"-->
+                <!--<svg id="svgVisualize" width="1200" height="700"></svg> &lt;!&ndash;width="500" height="500"&ndash;&gt;-->
             </td>
         </tr>
     </table>
 </div>
-<!--jquery library from CDN-->
-<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.3.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
-<!--load the main script-->
-<!--<svg id="svgVisualize" width="1200" height="700"></svg>-->
-<script src="index.js"></script>
+    <!--bringing in the dependencies-->
+    <script src="lib/jquery/dist/jquery.min.js"></script>
+    <script src="lib/d3/d3.min.js"></script>
+
+    <!--load the main script-->
+    <script src="index.js"></script>
 </body>
 </html>

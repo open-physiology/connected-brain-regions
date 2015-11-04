@@ -1,0 +1,19 @@
+source,target,weight
+parietal area pg  medial part,area 7,2
+area 7,area 23,2
+middle temporal cortex (occipital),lateral geniculate body,1
+lateral geniculate body,visual area 1,1
+visual area 1,visual area 2,2
+visual area 2,area 23,2
+intergeniculate leaflet of the lateral geniculate complex,precommissural nucleus,5
+medial nucleus of the amygdala posterodorsal part sublayer c,precommissural nucleus,5
+agranular area of temporal polar cortex,orbitofrontal area 13,2
+orbitofrontal area 13,nucleus pulvinaris lateralis thalami,2
+visual area 1,nucleus pulvinaris lateralis thalami,2
+nucleus dorsolateralis anterior thalami pars lateralis,habenula,7
+habenula,pallium,7
+pallium,hippocampus,7
+hippocampus,nucleus medialis dorsalis thalami,2
+orbitofrontal area 13,nucleus medialis dorsalis thalami,2
+nucleus of the posterior commissure,precommissural nucleus,5
+nucleus pulvinaris lateralis thalami,nucleus of the posterior commissure,2
