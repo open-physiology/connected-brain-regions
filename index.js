@@ -1,81 +1,56 @@
 /**
  * Created by Dewan on 11/1/2015.
  */
+var nodes = [];
+var edges = [];
+var reqds = ['nucleus dorsolateralis anterior thalami pars lateralis',
+    'abducens nucleus',
+    'parietal area pg  medial part',
+    'medial nucleus of the amygdala posterodorsal part sublayer c',
+    'visual area v3',
+    'middle temporal cortex (occipital)',
+    'agranular area of temporal polar cortex',
+    'intergeniculate leaflet of the lateral geniculate complex'];
 
-var brainList = document.getElementById("brainlist");
-$.getJSON("data.json", function (data) {
-    var i, button, checkbox, label;
-    var list = [], count = 0;
-    //console.log(data["nodes"].length);
-    //console.log(data["edges"].length);
-    for (i = 0; i < data["nodes"].length; i++) {
-        checkbox = document.createElement("input");
-        checkbox.id = data["nodes"][i];
+//var reqds = [];
+
+d3.json("data.json", function (data) {
+    var brainList = document.getElementById("brainlist");
+    var count = 0;
+    for (var i = 0; i < data["nodes"].length; i++) {
+        nodes[i] = data["nodes"][i];
+        var checkbox = document.createElement("input");
+        checkbox.id = nodes[i];
         checkbox.type = "checkbox";
 
-        label = document.createElement("output");
+        var label = document.createElement("output");
         label.appendChild(document.createTextNode(checkbox.id));
 
-        checkbox.onclick = function () {
-            list[count] = this.id;
-            count++;
-        }
+        //checkbox.onclick = function () {
+        //    reqds[count] = this.id;
+        //    count++;
+        //}
 
-        button = document.getElementById("calculate");
+        var button = document.getElementById("calculate");
         var graph = document.getElementById("graph");
         button.onclick = function () {
-            for (i = 0; i < count; i++) {
-                graph.appendChild(document.createTextNode(list[i]));
+            //console.log("Button");
+            for (i = 0; i < reqds.length; i++) {
+                graph.appendChild(document.createTextNode(reqds[i]));
                 graph.appendChild(document.createElement("br"));
-                //console.log(list[i]);
             }
         }
 
         brainList.appendChild(checkbox);
         brainList.appendChild(label);
         brainList.appendChild(document.createElement("br"));
-        //console.log(checkbox.id);
+    }
+
+    for (var j = 0; j < data["edges"].length; j++) {
+        edges.push([]);
+        edges[j].push(new Array(3));
+        for (var k = 0; k < 3; k++) {
+            edges[j][k] = data["edges"][j][k];
+        }
     }
 })
-
-////reading a json file from a webserver using http (example from w3schools), change it later
-//var brainList = document.getElementById("brainlist");
-//var xmlhttp = new XMLHttpRequest();
-//xmlhttp.open("GET", "data.json");
-//xmlhttp.onreadystatechange = function () {
-//    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-//        var data = JSON.parse(xmlhttp.responseText);
-//        var i, button, checkbox, label;
-//        var s = [], count = 0;;
-//        //console.log(data["nodes"].length);
-//        //console.log(data["edges"].length);
-//        for (i = 0; i < data["nodes"].length; i++) {
-//            checkbox = document.createElement("input");
-//            checkbox.id = data["nodes"][i];
-//            checkbox.type = "checkbox";
-//
-//            label = document.createElement("output");
-//            label.appendChild(document.createTextNode(checkbox.id));
-//
-//            checkbox.onclick = function(){
-//                s[count] = this.id;
-//                count++;
-//            }
-//
-//            button = document.getElementById("calculate");
-//            var gdata = document.getElementById("graph");
-//            button.onclick = function () {
-//                for(i = 0; i < count; i++) {
-//                    gdata.appendChild(document.createTextNode(s[i]));
-//                    gdata.appendChild(document.createElement("br"));
-//                }
-//            }
-//
-//            brainList.appendChild(checkbox);
-//            brainList.appendChild(label);
-//            brainList.appendChild(document.createElement("br"));
-//            //console.log(checkbox.id);
-//        }
-//    }
-//};
-//xmlhttp.send();

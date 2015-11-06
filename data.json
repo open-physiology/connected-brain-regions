@@ -1,4 +1,4 @@
-{ "nodes": 
+{ "nodes":
    [ "cortical area 3a",
      "second somatosensory area of cerebral cortex",
      "reticular nucleus of thalamus",
@@ -1448,7 +1448,7 @@
      "temporoparietal associated area (rostral part)",
      "occipitoparietal area",
      "temporal area tea" ],
-  "edges": 
+  "edges":
    [ [ "cortical area 3a",
        "second somatosensory area of cerebral cortex",
        2 ],
