@@ -3,10 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>connected-brain-regions</title>
+    <style>
+        path.link {
+            fill: none;
+            stroke: #666;
+            stroke-width: 1.5px;
+        }
+
+        circle {
+            fill: #ccc;
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        text {
+            fill: #000;
+            font: 10px sans-serif;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 <div align="center">
     <h1>Connected Brain Regions</h1>
+
     <p>Using minimal Steiner trees to find the best connections between a given set of brain regions</p>
     <table border="1px">
         <tr>
@@ -16,15 +36,12 @@
         <tr>
             <td>
                 <div id="brainlist" style="width:300px; height:700px; overflow-x: scroll; overflow-y: scroll"></div>
-                <div id="graphcalc"><button id="calculate">Calculate</button></div>
+                <div id="graphcalc">
+                    <button id="calculate">Calculate</button>
+                </div>
             </td>
             <td id="graph" width="1200" height="700"> <!--width="500" height="400"-->
-                <svg id="svgVisualize" width="1200" height="700"></svg> <!--width="500" height="500"-->
-            </td></tr>
-        <!--<td>-->
-        <!--<div id="graph" style="width: 1200px; height: 700px"></div>-->
-        <!--&lt;!&ndash;<svg id="svgVisualize" width="1200" height="700"></svg>&ndash;&gt;-->
-        <!--</td>-->
+            </td>
         </tr>
     </table>
 </div>
@@ -33,7 +50,6 @@
 <script src="lib/d3/d3.min.js"></script>
 
 <!--load the main script-->
-<!--<svg id="svgVisualize" width="1200" height="700"></svg>-->
 <script src="index.js"></script>
 </body>
 </html>
