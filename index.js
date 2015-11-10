@@ -4,21 +4,22 @@
 
 var d3 = require('d3');
 var steiner = require('./steiner.js').appx_steiner;
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 
 var nodes = [];
 var edges = [];
 var reqds = [];
 
 function reverse_edges(edges) {
-    return edges.map(function(e) {
-        return [e[1],e[0],e[2]];
+    return edges.map(function (e) {
+        return [e[1], e[0], e[2]];
     });
 }
 
-function test(a,b,c) {
-    b = b.map(function(e) {
+function test(a, b, c) {
+    b = b.map(function (e) {
         //console.log({from:e[0], to:e[1], weight:e[2]});
-        return {from:e[0], to:e[1], weight:e[2]};
+        return {from: e[0], to: e[1], weight: e[2]};
     });
 
     reverse_edges = b.map(function (e) {
@@ -27,10 +28,10 @@ function test(a,b,c) {
 
     b = b.concat(reverse_edges);
 
-    var result = steiner(a,b,c);
+    var result = steiner(a, b, c);
     console.log("\nEdges:");
     var counter = 0;
-    result = result.map(function(e) {
+    result = result.map(function (e) {
         counter++;
         //console.log([e.from, e.to, e.weight]);
         return [e.from, e.to, e.weight];
@@ -79,8 +80,8 @@ function draw(result) {
         .nodes(d3.values(nodes))
         .links(links)
         .size([width, height])
-        .linkDistance(60)
-        .charge(-800)
+        .linkDistance(100)
+        .charge(-1000)
         .on("tick", tick)
         .start();
 
@@ -107,7 +108,9 @@ function draw(result) {
         .data(force.links())
         .enter().append("svg:path")
         .attr("class", "link")
-        .style("stroke-width", function(d) { return Math.sqrt(d.value); })
+        .style("stroke-width", function (d) {
+            return Math.sqrt(d.value);
+        })
         .attr("marker-end", "url(#end)");
 
     // define the nodes
@@ -115,7 +118,9 @@ function draw(result) {
         .data(force.nodes())
         .enter().append("g")
         .attr("class", "node")
-        .style("fill", function(d) { return color(d.group); })
+        .style("fill", function (d) {
+            return color(d.group);
+        })
         .call(force.drag);
 
     // add the nodes
@@ -150,42 +155,88 @@ function draw(result) {
     }
 }
 
-d3.json("data.json", function (data) {
-    var brainList = document.getElementById("brainlist");
-    var count = 0;
-    for (var i = 0; i < data["nodes"].length; i++) {
-        nodes[i] = data["nodes"][i];
-        var checkbox = document.createElement("input");
-        checkbox.id = nodes[i];
-        checkbox.type = "checkbox";
+var xmlhttp = new XMLHttpRequest();
+xmlhttp.open("GET", "http://localhost:63342/connected-brain-regions/data.json");
+xmlhttp.onreadystatechange = function () {
+    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+        var data = JSON.parse(xmlhttp.responseText);
+        var brainList = document.getElementById("brainlist");
+        var count = 0;
+        for (var i = 0; i < data["nodes"].length; i++) {
+            nodes[i] = data["nodes"][i];
+            var checkbox = document.createElement("input");
+            checkbox.id = nodes[i];
+            checkbox.type = "checkbox";
 
-        var label = document.createElement("output");
-        label.appendChild(document.createTextNode(checkbox.id));
+            var label = document.createElement("output");
+            label.appendChild(document.createTextNode(checkbox.id));
 
-        checkbox.onclick = function () {
-            reqds[count] = this.id;
-            count++;
+            checkbox.onclick = function () {
+                reqds[count] = this.id;
+                count++;
+            }
+
+            var button = document.getElementById("calculate");
+            button.onclick = function () {
+                var result = test(nodes, edges, reqds);
+                draw(result);
+                console.log("REQUIRED NODES:\n" + reqds);
+                console.log("\nNODES:\n" + nodes);
+                console.log("\nEDGES:\n" + edges);
+            }
+
+            brainList.appendChild(checkbox);
+            brainList.appendChild(label);
+            brainList.appendChild(document.createElement("br"));
         }
 
-        var button = document.getElementById("calculate");
-        button.onclick = function () {
-            var result = test(nodes,edges,reqds);
-            draw(result);
-            console.log("REQUIRED NODES:\n" + reqds);
-            console.log("\nNODES:\n" + nodes);
-            console.log("\nEDGES:\n" + edges);
+        for (var j = 0; j < data["edges"].length; j++) {
+            edges.push([]);
+            edges[j].push(new Array(3));
+            for (var k = 0; k < 3; k++) {
+                edges[j][k] = data["edges"][j][k];
+            }
         }
-
-        brainList.appendChild(checkbox);
-        brainList.appendChild(label);
-        brainList.appendChild(document.createElement("br"));
     }
+}
+xmlhttp.send();
 
-    for (var j = 0; j < data["edges"].length; j++) {
-        edges.push([]);
-        edges[j].push(new Array(3));
-        for (var k = 0; k < 3; k++) {
-            edges[j][k] = data["edges"][j][k];
-        }
-    }
-})
+//d3.json("", function (data) {
+//    var brainList = document.getElementById("brainlist");
+//    var count = 0;
+//    for (var i = 0; i < data["nodes"].length; i++) {
+//        nodes[i] = data["nodes"][i];
+//        var checkbox = document.createElement("input");
+//        checkbox.id = nodes[i];
+//        checkbox.type = "checkbox";
+//
+//        var label = document.createElement("output");
+//        label.appendChild(document.createTextNode(checkbox.id));
+//
+//        checkbox.onclick = function () {
+//            reqds[count] = this.id;
+//            count++;
+//        }
+//
+//        var button = document.getElementById("calculate");
+//        button.onclick = function () {
+//            var result = test(nodes,edges,reqds);
+//            draw(result);
+//            console.log("REQUIRED NODES:\n" + reqds);
+//            console.log("\nNODES:\n" + nodes);
+//            console.log("\nEDGES:\n" + edges);
+//        }
+//
+//        brainList.appendChild(checkbox);
+//        brainList.appendChild(label);
+//        brainList.appendChild(document.createElement("br"));
+//    }
+//
+//    for (var j = 0; j < data["edges"].length; j++) {
+//        edges.push([]);
+//        edges[j].push(new Array(3));
+//        for (var k = 0; k < 3; k++) {
+//            edges[j][k] = data["edges"][j][k];
+//        }
+//    }
+//})
