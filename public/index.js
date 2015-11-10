@@ -10,12 +10,22 @@ var nodes = [];
 var edges = [];
 var reqds = [];
 
+/*
+* Utility function for adding reverse edges
+*/
 function reverse_edges(edges) {
     return edges.map(function (e) {
         return [e[1], e[0], e[2]];
     });
 }
 
+/*
+ * Input:
+ *  a: an array of nodes.
+ *  b: an array of edges.
+ *  c: an array of 'required' nodes (must be a subset of
+ *            the above-mentioned array of nodes).
+ */
 function test(a, b, c) {
     b = b.map(function (e) {
         //console.log({from:e[0], to:e[1], weight:e[2]});
@@ -45,6 +55,9 @@ function test(a, b, c) {
     return got;
 }
 
+/*
+* D3 function to draw the required edges, i.e., connected brain regions
+*/
 function draw(result) {
     var links = [];
     for (var i = 0; i < result.length; i++) {
@@ -155,8 +168,14 @@ function draw(result) {
     }
 }
 
+/*
+* Main Tasks:
+*   retrieving nodes and edges from data.json and saving them in nodes and edges array
+*   creating checkboxes for each node and then adding them in a label
+*   xmlhttp should be replaced with $.ajax call - later??
+*/
 var xmlhttp = new XMLHttpRequest();
-xmlhttp.open("GET", "http://localhost:63342/connected-brain-regions/data.json");
+xmlhttp.open("GET", "http://127.0.0.1:8081/data.json");
 xmlhttp.onreadystatechange = function () {
     if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
         var data = JSON.parse(xmlhttp.responseText);
@@ -200,43 +219,3 @@ xmlhttp.onreadystatechange = function () {
     }
 }
 xmlhttp.send();
-
-//d3.json("", function (data) {
-//    var brainList = document.getElementById("brainlist");
-//    var count = 0;
-//    for (var i = 0; i < data["nodes"].length; i++) {
-//        nodes[i] = data["nodes"][i];
-//        var checkbox = document.createElement("input");
-//        checkbox.id = nodes[i];
-//        checkbox.type = "checkbox";
-//
-//        var label = document.createElement("output");
-//        label.appendChild(document.createTextNode(checkbox.id));
-//
-//        checkbox.onclick = function () {
-//            reqds[count] = this.id;
-//            count++;
-//        }
-//
-//        var button = document.getElementById("calculate");
-//        button.onclick = function () {
-//            var result = test(nodes,edges,reqds);
-//            draw(result);
-//            console.log("REQUIRED NODES:\n" + reqds);
-//            console.log("\nNODES:\n" + nodes);
-//            console.log("\nEDGES:\n" + edges);
-//        }
-//
-//        brainList.appendChild(checkbox);
-//        brainList.appendChild(label);
-//        brainList.appendChild(document.createElement("br"));
-//    }
-//
-//    for (var j = 0; j < data["edges"].length; j++) {
-//        edges.push([]);
-//        edges[j].push(new Array(3));
-//        for (var k = 0; k < 3; k++) {
-//            edges[j][k] = data["edges"][j][k];
-//        }
-//    }
-//})
