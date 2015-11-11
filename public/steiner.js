@@ -62,6 +62,7 @@ function steiner(nodes, edges, required) {
       from: get_xnode(e.from),
       to: get_xnode(e.to),
       weight: e.weight,
+      species: e.species,
       in_solution: false,
       in_first_component: false
     };

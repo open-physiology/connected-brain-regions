@@ -11,25 +11,15 @@ var edges = [];
 var reqds = [];
 
 /*
- * Utility function for adding reverse edges
- */
-function reverse_edges(edges) {
-    return edges.map(function (e) {
-        return [e[1], e[0], e[2]];
-    });
-}
-
-/*
  * Input:
  *  a: an array of nodes.
  *  b: an array of edges.
  *  c: an array of 'required' nodes (must be a subset of
  *            the above-mentioned array of nodes).
  */
-function test(a, b, c) {
-    b = b.map(function (e) {
-        //console.log({from:e[0], to:e[1], weight:e[2]});
-        return {from: e[0], to: e[1], weight: e[2]};
+function test(a,b,c) {
+    b = b.map(function(e) {
+        return {from:e[0], to:e[1], weight:e[2], species: e[3]};
     });
 
     reverse_edges = b.map(function (e) {
@@ -38,21 +28,18 @@ function test(a, b, c) {
 
     b = b.concat(reverse_edges);
 
-    var result = steiner(a, b, c);
+    var result = steiner(a,b,c);
     console.log("\nEdges:");
     var counter = 0;
-    result = result.map(function (e) {
+    result = result.map(function(e) {
         counter++;
-        //console.log([e.from, e.to, e.weight]);
-        return [e.from, e.to, e.weight];
+        return [e.from, e.to, e.weight, e.species];
     });
 
     console.log("\nNumber of Edges: " + counter);
 
     var got = JSON.stringify(result);
     console.log("\nOUTPUT:\n" + got);
-
-    return got;
 }
 
 /*
