@@ -11,8 +11,8 @@ var edges = [];
 var reqds = [];
 
 /*
-* Utility function for adding reverse edges
-*/
+ * Utility function for adding reverse edges
+ */
 function reverse_edges(edges) {
     return edges.map(function (e) {
         return [e[1], e[0], e[2]];
@@ -56,15 +56,16 @@ function test(a, b, c) {
 }
 
 /*
-* D3 function to draw the required edges, i.e., connected brain regions
-*/
+ * D3 function to draw the required edges, i.e., connected brain regions
+ */
 function draw(result) {
     var links = [];
     for (var i = 0; i < result.length; i++) {
         links.push({
             source: result[i][0],
             target: result[i][1],
-            weight: result[i][2]
+            weight: result[i][2],
+            species: result[i][3]
         });
     }
 
@@ -79,9 +80,6 @@ function draw(result) {
         link.target = nodes[link.target] ||
             (nodes[link.target] = {name: link.target});
         //console.log(link.target);
-
-        link.weight = +link.weight;
-        //console.log(link.weight);
     });
 
     var width = 1200,
@@ -116,13 +114,73 @@ function draw(result) {
         .append("svg:path")
         .attr("d", "M0,-5L10,0L0,5");
 
+    //add label of each species with unique color
+    var p = 0;
+    function speciesLabel(species, color, p) {
+        if (species == "macaque") {
+            svg.append("text")
+                .attr("stroke", color)
+                .attr("x", 10)
+                .attr("y", p)
+                .text(species)
+        }
+        if (species == "macaca mulatta") {
+            svg.append("text")
+                .attr("stroke", color)
+                .attr("x", 10)
+                .attr("y", p)
+                .text(species)
+        }
+        if (species == "macaca fuscata") {
+            svg.append("text")
+                .attr("stroke", color)
+                .attr("x", 10)
+                .attr("y", p)
+                .text(species)
+        }
+        if (species == "Homo sapiens") {
+            svg.append("text")
+                .attr("stroke", color)
+                .attr("x", 10)
+                .attr("y", p)
+                .text(species)
+        }
+        if (species == "Birds") {
+            svg.append("text")
+                .attr("stroke", color)
+                .attr("x", 10)
+                .attr("y", p)
+                .text(species)
+        }
+        if (species == "Rat") {
+            svg.append("text")
+                .attr("stroke", color)
+                .attr("x", 10)
+                .attr("y", p)
+                .text(species)
+        }
+        if (species == "rattus norvegicus") {
+            svg.append("text")
+                .attr("stroke", color)
+                .attr("x", 10)
+                .attr("y", p)
+                .text(species)
+        }
+    }
+
     // add the links and the arrows
     var path = svg.append("svg:g").selectAll("path")
         .data(force.links())
         .enter().append("svg:path")
         .attr("class", "link")
-        .style("stroke-width", function (d) {
-            return Math.sqrt(d.value);
+        .style("stroke", function (d) {
+            console.log(d.species);
+            console.log(color(d.species));
+
+            p = p + 20;
+            speciesLabel(d.species, color(d.species), p);
+
+            return color(d.species);
         })
         .attr("marker-end", "url(#end)");
 
@@ -169,11 +227,11 @@ function draw(result) {
 }
 
 /*
-* Main Tasks:
-*   retrieving nodes and edges from data.json and saving them in nodes and edges array
-*   creating checkboxes for each node and then adding them in a label
-*   xmlhttp should be replaced with $.ajax call - later??
-*/
+ * Main Tasks:
+ *   retrieving nodes and edges from data.json and saving them in nodes and edges array
+ *   creating checkboxes for each node and then adding them in a label
+ *   xmlhttp should be replaced with $.ajax call - later??
+ */
 var xmlhttp = new XMLHttpRequest();
 xmlhttp.open("GET", "http://127.0.0.1:8081/data.json");
 xmlhttp.onreadystatechange = function () {
@@ -211,8 +269,8 @@ xmlhttp.onreadystatechange = function () {
 
         for (var j = 0; j < data["edges"].length; j++) {
             edges.push([]);
-            edges[j].push(new Array(3));
-            for (var k = 0; k < 3; k++) {
+            edges[j].push(new Array(4));
+            for (var k = 0; k < 4; k++) {
                 edges[j][k] = data["edges"][j][k];
             }
         }
