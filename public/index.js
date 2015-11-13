@@ -13,7 +13,10 @@ var reqds = [];
 /*
  * Input:
  *  a: an array of nodes.
- *  b: an array of edges.
+ *  b: an array of edges. an array of edges.  Each edge should be an object
+ *         with 'from', 'to', 'weight', and 'species' fields, where 'from'
+ *         and 'to' are nodes, 'weight' is a positive integer, and 'species'
+ *         is the name of species between the connected nodes.
  *  c: an array of 'required' nodes (must be a subset of
  *            the above-mentioned array of nodes).
  */
@@ -101,8 +104,10 @@ function draw(result) {
         .append("svg:path")
         .attr("d", "M0,-5L10,0L0,5");
 
-    //add label of each species with unique color
+    //keep track of y axis position for showing 'species' as text
     var p = 0;
+
+    //add label of each species with unique color
     function speciesLabel(species, color, p) {
         if (species == "macaque") {
             svg.append("text")
@@ -176,9 +181,6 @@ function draw(result) {
         .data(force.nodes())
         .enter().append("g")
         .attr("class", "node")
-        .style("fill", function (d) {
-            return color(d.group);
-        })
         .call(force.drag);
 
     // add the nodes
