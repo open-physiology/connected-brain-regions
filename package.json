@@ -6,19 +6,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "open-physiology",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.14.1",
-    "cookie-parser": "^1.4.0",
     "d3": "^3.5.6",
-    "express": "^4.13.3",
     "fifo": "^2.1.0",
-    "fs": "0.0.2",
-    "http": "0.0.0",
-    "jquery": "^2.1.4",
-    "multer": "^1.1.0",
-    "socket.io": "^1.3.7",
-    "xmlhttprequest": "^1.8.0"
+    "jquery": "^2.1.4"
   }
 }

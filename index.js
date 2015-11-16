@@ -2,82 +2,104 @@
  * Created by Dewan on 11/1/2015.
  */
 
-//var d3 = require('d3');
-//var steiner = require('./steiner.js').appx_steiner;
-//var create_new_fifo = require('fifo');
-//var create_new_fifo = FIFO();
-//var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-
 var nodes = [];
 var edges = [];
 var reqds = [];
 
-function connect(soln, xedges, xnodes) {
-    if (soln.length < 2) return soln;
-    xedges.forEach(function (e) {
-        e.in_solution = false;
-        e.in_first_component = false;
-    });
-    xnodes.forEach(function (n) {
-        n.in_solution = false;
-        n.in_first_component = false;
-    });
-    soln.forEach(function (e) {
-        e.from.in_solution = true;
-        e.to.in_solution = true;
-        e.in_solution = true;
-    });
+/*
+ * Main Tasks:
+ *   scanning nodes and edges from data.json and saving them in nodes and edges array.
+ *   creating checkboxes for each node and then adding them in a label.
+ */
 
-    function to_first_component(x) {
-        x.from.in_first_component = true;
-        x.to.in_first_component = true;
-        x.in_first_component = true;
-        var candidates = x.from.outgoing.concat(x.to.outgoing);
-        candidates = candidates.concat(x.from.incoming).concat(x.to.incoming);
-        candidates.forEach(function (c) {
-            if (!c.in_solution) return;
-            if (c.in_first_component) return;
-            to_first_component(c);
-        });
-    }
+d3.json("data.json", function (data) {
+    var brainList = document.getElementById("brainlist");
+    var count = 0;
+    for (var i = 0; i < data["nodes"].length; i++) {
+        nodes[i] = data["nodes"][i];
+        var checkbox = document.createElement("input");
+        checkbox.id = nodes[i];
+        checkbox.type = "checkbox";
 
-    to_first_component(soln[0]);
+        var label = document.createElement("output");
+        label.appendChild(document.createTextNode(checkbox.id));
 
-    for (var i = 0; i < soln.length; i++) {
-        if (!soln[i].in_first_component) break;
-    }
-    if (i === soln.length) return soln;
+        checkbox.onclick = function () {
+            if (this.checked == true) {
+                //console.log(this.checked + " " + this.id);
+                reqds[count] = this.id;
+                count++;
+            }
+            else {
+                console.log(this.checked + " " + this.id);
+                var index = reqds.indexOf(this.id);
+                var removed = reqds.splice(index, 1);
+                //console.log("removed" + removed);
+                this.checked = false;
+            }
 
-    //var fifo = create_new_fifo();
-    var fifo = FIFO();
-
-    xnodes.forEach(function (n) {
-        n.witness = n.in_first_component;
-        if (!n.in_first_component) return;
-        n.outgoing.forEach(function (outgoing) {
-            fifo.push({point: outgoing.to, path: [outgoing], endweight: outgoing.weight});
-        });
-    });
-
-    while (!fifo.isEmpty()) {
-        var ppath = fifo.shift();
-        if (ppath.endweight > 1) {
-            ppath.endweight--;
-            fifo.push(ppath);
-            continue;
+            //if (reqds.length >= 8) {
+            //    window.alert("You have already entered " + reqds.length + "-required brain regions.");
+            //}
         }
-        var n = ppath.point;
-        if (n.witness) continue;
-        if (n.in_solution) {
-            return connect(soln.concat(ppath.path), xedges, xnodes);
+
+        var button = document.getElementById("calculate");
+        button.onclick = function () {
+            var result = test(nodes, edges, reqds);
+            draw(result);
         }
-        n.witness = true;
-        n.outgoing.forEach(function (outgoing) {
-            fifo.push({point: outgoing.to, path: [outgoing], endweight: outgoing.weight});
-        });
+
+        brainList.appendChild(checkbox);
+        brainList.appendChild(label);
+        brainList.appendChild(document.createElement("br"));
     }
 
-    return soln;
+    for (var j = 0; j < data["edges"].length; j++) {
+        edges.push([]);
+        edges[j].push(new Array(4));
+        for (var k = 0; k < 4; k++) {
+            if (data["edges"][j][3] === "macaca mulatta" || data["edges"][j][3] === "macaca fuscata") {
+                edges[j][3] = "macaque";
+            }
+            else if (data["edges"][j][3] == "rattus norvegicus") {
+                edges[j][3] = "Rat";
+            }
+            else {
+                edges[j][k] = data["edges"][j][k];
+            }
+        }
+    }
+})
+
+/*
+ * Input:
+ *  a: an array of nodes.
+ *  b: an array of edges. an array of edges.  Each edge should be an object
+ *         with 'from', 'to', 'weight', and 'species' fields, where 'from'
+ *         and 'to' are nodes, 'weight' is a positive integer, and 'species'
+ *         is the name of species between the connected nodes.
+ *  c: an array of 'required' nodes (must be a subset of
+ *            the above-mentioned array of nodes).
+ */
+function test(a, b, c) {
+    b = b.map(function (e) {
+        return {from: e[0], to: e[1], weight: e[2], species: e[3]};
+    });
+
+    var reverse_edges = b.map(function (e) {
+        return {from: e.to, to: e.from, weight: e.weight, species: e.species};
+    });
+
+    b = b.concat(reverse_edges);
+
+    var result = steiner(a, b, c);
+    var counter = 0;
+    result = result.map(function (e) {
+        counter++;
+        return [e.from, e.to, e.weight, e.species];
+    });
+
+    return result;
 }
 
 /*
@@ -324,38 +346,83 @@ function steiner(nodes, edges, required) {
 }
 
 /*
- * Input:
- *  a: an array of nodes.
- *  b: an array of edges. an array of edges.  Each edge should be an object
- *         with 'from', 'to', 'weight', and 'species' fields, where 'from'
- *         and 'to' are nodes, 'weight' is a positive integer, and 'species'
- *         is the name of species between the connected nodes.
- *  c: an array of 'required' nodes (must be a subset of
- *            the above-mentioned array of nodes).
+ * If the result we get is not connected, try to
+ * connect it:  this is kind of naive, we brute-force
+ * try to connect the first component to the other
+ * components and if we succeed, recurse and try again.
+ * Needs improvement. Connect algorithm makes annotations
+ * in order to do its work. We use xedges and xnodes for
+ * that because we don't want to "scribble annotations"
+ * on the original objects which, at least in principle,
+ * the library user might not want us to alter.
  */
-function test(a, b, c) {
-    b = b.map(function (e) {
-        return {from: e[0], to: e[1], weight: e[2], species: e[3]};
+
+function connect(soln, xedges, xnodes) {
+    if (soln.length < 2) return soln;
+    xedges.forEach(function (e) {
+        e.in_solution = false;
+        e.in_first_component = false;
+    });
+    xnodes.forEach(function (n) {
+        n.in_solution = false;
+        n.in_first_component = false;
+    });
+    soln.forEach(function (e) {
+        e.from.in_solution = true;
+        e.to.in_solution = true;
+        e.in_solution = true;
     });
 
-    reverse_edges = b.map(function (e) {
-        return {from: e.to, to: e.from, weight: e.weight, species: e.species};
+    function to_first_component(x) {
+        x.from.in_first_component = true;
+        x.to.in_first_component = true;
+        x.in_first_component = true;
+        var candidates = x.from.outgoing.concat(x.to.outgoing);
+        candidates = candidates.concat(x.from.incoming).concat(x.to.incoming);
+        candidates.forEach(function (c) {
+            if (!c.in_solution) return;
+            if (c.in_first_component) return;
+            to_first_component(c);
+        });
+    }
+
+    to_first_component(soln[0]);
+
+    for (var i = 0; i < soln.length; i++) {
+        if (!soln[i].in_first_component) break;
+    }
+    if (i === soln.length) return soln;
+
+    //var fifo = create_new_fifo();
+    var fifo = FIFO();
+
+    xnodes.forEach(function (n) {
+        n.witness = n.in_first_component;
+        if (!n.in_first_component) return;
+        n.outgoing.forEach(function (outgoing) {
+            fifo.push({point: outgoing.to, path: [outgoing], endweight: outgoing.weight});
+        });
     });
 
-    b = b.concat(reverse_edges);
+    while (!fifo.isEmpty()) {
+        var ppath = fifo.shift();
+        if (ppath.endweight > 1) {
+            ppath.endweight--;
+            fifo.push(ppath);
+            continue;
+        }
+        var n = ppath.point;
+        if (n.witness) continue;
+        if (n.in_solution) {
+            return connect(soln.concat(ppath.path), xedges, xnodes);
+        }
+        n.witness = true;
+        n.outgoing.forEach(function (outgoing) {
+            fifo.push({point: outgoing.to, path: [outgoing], endweight: outgoing.weight});
+        });
+    }
 
-    var result = steiner(a, b, c);
-    console.log("\nEdges:");
-    var counter = 0;
-    result = result.map(function (e) {
-        counter++;
-        return [e.from, e.to, e.weight, e.species];
-    });
-
-    console.log("\nNumber of Edges: " + counter);
-
-    var got = JSON.stringify(result);
-    console.log("\nOUTPUT:\n" + got);
+    return soln;
 }
 
 /*
@@ -458,9 +525,6 @@ function draw(result) {
         .enter().append("svg:path")
         .attr("class", "link")
         .style("stroke", function (d) {
-            console.log(d.species);
-            console.log(color(d.species));
-
             p = p + 20;
             speciesLabel(d.species, color(d.species), p);
 
@@ -513,127 +577,3 @@ function draw(result) {
         });
     }
 }
-
-/*
- * Main Tasks:
- *   retrieving nodes and edges from data.json and saving them in nodes and edges array.
- *   creating checkboxes for each node and then adding them in a label.
- */
-
-d3.json("data.json", function (data) {
-    var brainList = document.getElementById("brainlist");
-    var count = 0;
-    for (var i = 0; i < data["nodes"].length; i++) {
-        nodes[i] = data["nodes"][i];
-        var checkbox = document.createElement("input");
-        checkbox.id = nodes[i];
-        checkbox.type = "checkbox";
-
-        var label = document.createElement("output");
-        label.appendChild(document.createTextNode(checkbox.id));
-
-        checkbox.onclick = function () {
-            if(this.checked == true){
-                console.log(this.checked + " " + this.id);
-                reqds[count] = this.id;
-                count++;
-            }
-            else {
-                console.log(this.checked + " " + this.id);
-                var index = reqds.indexOf(this.id);
-                var removed = reqds.splice(index, 1);
-                //console.log("removed" + removed);
-                this.checked = false;
-            }
-
-            if (reqds.length >= 8) {
-                window.alert("You have already entered " + reqds.length + "-required brain regions.");
-            }
-        }
-
-        var button = document.getElementById("calculate");
-        button.onclick = function () {
-            button.onclick = function () {
-                var result = test(nodes, edges, reqds);
-                draw(result);
-                console.log("REQUIRED NODES:\n" + reqds);
-                console.log("\nNODES:\n" + nodes);
-                console.log("\nEDGES:\n" + edges);
-            }
-        }
-
-        brainList.appendChild(checkbox);
-        brainList.appendChild(label);
-        brainList.appendChild(document.createElement("br"));
-    }
-
-    for (var j = 0; j < data["edges"].length; j++) {
-        edges.push([]);
-        edges[j].push(new Array(4));
-        for (var k = 0; k < 4; k++) {
-            if (data["edges"][j][3] === "macaca mulatta" || data["edges"][j][3] === "macaca fuscata") {
-                edges[j][3] = "macaque";
-            }
-            else if (data["edges"][j][3] == "rattus norvegicus") {
-                edges[j][3] = "Rat";
-            }
-            else {
-                edges[j][k] = data["edges"][j][k];
-            }
-        }
-    }
-})
-
-//var xmlhttp = new XMLHttpRequest();
-//xmlhttp.open("GET", "http://127.0.0.1:8081/data.json");
-//xmlhttp.onreadystatechange = function () {
-//    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-//        var data = JSON.parse(xmlhttp.responseText);
-//        var brainList = document.getElementById("brainlist");
-//        var count = 0;
-//        for (var i = 0; i < data["nodes"].length; i++) {
-//            nodes[i] = data["nodes"][i];
-//            var checkbox = document.createElement("input");
-//            checkbox.id = nodes[i];
-//            checkbox.type = "checkbox";
-//
-//            var label = document.createElement("output");
-//            label.appendChild(document.createTextNode(checkbox.id));
-//
-//            checkbox.onclick = function () {
-//                reqds[count] = this.id;
-//                count++;
-//            }
-//
-//            var button = document.getElementById("calculate");
-//            button.onclick = function () {
-//                var result = test(nodes, edges, reqds);
-//                draw(result);
-//                console.log("REQUIRED NODES:\n" + reqds);
-//                console.log("\nNODES:\n" + nodes);
-//                console.log("\nEDGES:\n" + edges);
-//            }
-//
-//            brainList.appendChild(checkbox);
-//            brainList.appendChild(label);
-//            brainList.appendChild(document.createElement("br"));
-//        }
-//
-//        for (var j = 0; j < data["edges"].length; j++) {
-//            edges.push([]);
-//            edges[j].push(new Array(4));
-//            for (var k = 0; k < 4; k++) {
-//                if (data["edges"][j][3] === "macaca mulatta" || data["edges"][j][3] === "macaca fuscata") {
-//                    edges[j][3] = "macaque";
-//                }
-//                else if (data["edges"][j][3] == "rattus norvegicus") {
-//                    edges[j][3] = "Rat";
-//                }
-//                else {
-//                    edges[j][k] = data["edges"][j][k];
-//                }
-//            }
-//        }
-//    }
-//}
-//xmlhttp.send();
