@@ -26,25 +26,19 @@ d3.json("data.json", function (data) {
 
         checkbox.onclick = function () {
             if (this.checked == true) {
-                //console.log(this.checked + " " + this.id);
                 reqds[count] = this.id;
                 count++;
             }
             else {
-                console.log(this.checked + " " + this.id);
                 var index = reqds.indexOf(this.id);
-                var removed = reqds.splice(index, 1);
-                //console.log("removed" + removed);
+                reqds.splice(index, 1);
                 this.checked = false;
             }
-
-            //if (reqds.length >= 8) {
-            //    window.alert("You have already entered " + reqds.length + "-required brain regions.");
-            //}
         }
 
         var button = document.getElementById("calculate");
         button.onclick = function () {
+            d3.select("svg").remove();
             var result = test(nodes, edges, reqds);
             draw(result);
         }
@@ -484,40 +478,17 @@ function draw(result) {
         .append("svg:path")
         .attr("d", "M0,-5L10,0L0,5");
 
-    //keep track of y axis position for showing 'species' as text
-    var p = 0;
+    //filter unique species from the result
+    var species = [];
+    var py = 20;
 
-    //add label of each species with unique color
-    function speciesLabel(species, color, p) {
-        if (species == "macaque") {
-            svg.append("text")
-                .attr("stroke", color)
-                .attr("x", 10)
-                .attr("y", p)
-                .text(species)
-        }
-        if (species == "Homo sapiens") {
-            svg.append("text")
-                .attr("stroke", color)
-                .attr("x", 10)
-                .attr("y", p)
-                .text(species)
-        }
-        if (species == "Birds") {
-            svg.append("text")
-                .attr("stroke", color)
-                .attr("x", 10)
-                .attr("y", p)
-                .text(species)
-        }
-        if (species == "Rat") {
-            svg.append("text")
-                .attr("stroke", color)
-                .attr("x", 10)
-                .attr("y", p)
-                .text(species)
-        }
+    for (var i = 0; i < result.length; i++) {
+        species[i] = result[i][3];
     }
+
+    species = species.filter(function (item, pos) {
+        return species.indexOf(item) == pos;
+    })
 
     // add the links and the arrows
     var path = svg.append("svg:g").selectAll("path")
@@ -525,8 +496,19 @@ function draw(result) {
         .enter().append("svg:path")
         .attr("class", "link")
         .style("stroke", function (d) {
-            p = p + 20;
-            speciesLabel(d.species, color(d.species), p);
+            for (var i = 0; i < species.length; i++) {
+                if (d.species == species[i]) {
+                    svg.append("text")
+                        .attr("stroke", color(d.species))
+                        .attr("x", 10)
+                        .attr("y", py)
+                        .text(d.species)
+
+                    py = py + 20;
+                    species[i] = "";
+                    break;
+                }
+            }
 
             return color(d.species);
         })
