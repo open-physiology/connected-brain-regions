@@ -4,12 +4,6 @@
     <meta charset="UTF-8">
     <title>connected-brain-regions</title>
     <style>
-        body {
-            width: 100%;
-            height: 100%;
-            overflow-y:hidden;
-        }
-
         path.link {
             fill: none;
             stroke: #999;
@@ -29,11 +23,10 @@
     </style>
 </head>
 <body>
-<div align="center">
+<div id="main" align="center">
     <h1>Connected Brain Regions</h1>
 
-    <p>Using minimal Steiner trees to find the best connections between a given set of brain regions (8-required brain
-        regions)</p>
+    <p>Using minimal Steiner trees to find the best connections between a given set of brain regions</p>
     <table border="2px">
         <tr>
             <th>Select 8-required Brain Regions</th>
@@ -46,7 +39,8 @@
                     <button id="calculate">Calculate</button>
                 </div>
             </td>
-            <td id="graph" width="1200" height="700">
+            <td>
+                <div id="graph" style="width:1200px; height:700px"></div>
             </td>
         </tr>
     </table>
