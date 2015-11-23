@@ -6,8 +6,7 @@
     <style>
         path.link {
             fill: none;
-            stroke: #999;
-            stroke-opacity: .6;
+            stroke-width: 1.5px;
         }
 
         circle {
@@ -20,34 +19,62 @@
             font: 10px sans-serif;
             pointer-events: none;
         }
+
+        @media screen and (min-width: 600px) {
+            .list {
+                position: fixed;
+                top: 0px;
+                max-width: 300px;
+                height: 94vh;
+                overflow-y: scroll;
+            }
+
+            .btn {
+                position: fixed;
+                top: 95vh;
+            }
+
+            .graph {
+                margin-left: 300px;
+            }
+        }
+
+        @media screen and (max-width: 599px) {
+            .list li {
+                display: inline;
+            }
+        }
+
+        /*.list {*/
+        /*position: fixed;*/
+        /*top: 0px;*/
+        /*max-width: 300px;*/
+        /*height: 90vh;*/
+        /*overflow-y: scroll;*/
+        /*}*/
+
+        /*.btn {*/
+        /*position: fixed;*/
+        /*top: 90vh;*/
+        /*}*/
+
+        /*.graph {*/
+        /*margin-left: 300px;*/
+        /*alignment: center;*/
+        /*}*/
     </style>
 </head>
 <body>
-<div id="main" align="center">
-    <h1>Connected Brain Regions</h1>
 
-    <p>Using minimal Steiner trees to find the best connections between a given set of brain regions</p>
-    <table border="2px">
-        <tr>
-            <th>Select 8-required Brain Regions</th>
-            <th>Visualisation of Steiner Tree</th>
-        </tr>
-        <tr>
-            <td>
-                <div id="brainlist" style="width:300px; height:550px; overflow-x: scroll; overflow-y: scroll"></div>
-                <div id="graphcalc">
-                    <button id="calculate">Calculate</button>
-                </div>
-            </td>
-            <td>
-                <div id="graph" style="width:1200px; height:700px"></div>
-            </td>
-        </tr>
-    </table>
+<div id="brainlist" class="list"></div>
+<div id="button" class="btn">
+    <button id="calculate">clickME</button>
 </div>
-    <script>module = {}</script>
-    <script src="node_modules/d3/d3.min.js"></script>
-    <script src="node_modules/fifo/index.js"></script>
-    <script src="index.js"></script>
+<div id="svgVisualize" class="graph"></div>
+
+<script>module = {}</script>
+<script src="node_modules/d3/d3.min.js"></script>
+<script src="node_modules/fifo/index.js"></script>
+<script src="index.js"></script>
 </body>
 </html>

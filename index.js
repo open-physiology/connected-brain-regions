@@ -26,6 +26,7 @@ d3.json("data.json", function (data) {
 
         checkbox.onclick = function () {
             if (this.checked == true) {
+                console.log(this.id);
                 reqds[count] = this.id;
                 count++;
             }
@@ -93,6 +94,8 @@ function test(a, b, c) {
         return [e.from, e.to, e.weight, e.species];
     });
 
+    console.log(result);
+    console.log(reqds)
     return result;
 }
 
@@ -446,8 +449,22 @@ function draw(result) {
         //console.log(link.target);
     });
 
-    var width = 1200,
-        height = 700;
+    var g = document.getElementById("#svgVisualize"),
+        width = window.innerWidth,
+        height = window.innerHeight;
+
+    var svg = d3.select("#svgVisualize").append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g");
+
+    function updateWindow(){
+        width = window.innerWidth;
+        height = window.innerHeight;
+
+        svg.attr("width", width).attr("height", height);
+    }
+    window.onresize = updateWindow;
 
     var color = d3.scale.category20();
 
@@ -460,27 +477,24 @@ function draw(result) {
         .on("tick", tick)
         .start();
 
-    var svg = d3.select("#graph").append("svg")
-        .attr("width", width)
-        .attr("height", height);
-
     // build the arrow.
-    svg.append("svg:defs").selectAll("marker")
-        .data(["end"])      // Different link/path types can be defined here
-        .enter().append("svg:marker")    // This section adds in the arrows
-        .attr("id", String)
-        .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 15)
-        .attr("refY", -1.5)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
-        .attr("orient", "auto")
-        .append("svg:path")
-        .attr("d", "M0,-5L10,0L0,5");
+    //svg.append("svg:defs").selectAll("marker")
+    //    .data(["end"])      // Different link/path types can be defined here
+    //    .enter().append("svg:marker")    // This section adds in the arrows
+    //    .attr("id", String)
+    //    .attr("viewBox", "0 -5 10 10")
+    //    .attr("refX", 15)
+    //    .attr("refY", -1.5)
+    //    .attr("markerWidth", 6)
+    //    .attr("markerHeight", 6)
+    //    .attr("orient", "auto")
+    //    .append("svg:path")
+    //    .attr("d", "M0,-5L10,0L0,5");
 
     //filter unique species from the result
     var species = [];
     var py = 20;
+    console.log(py);
 
     for (var i = 0; i < result.length; i++) {
         species[i] = result[i][3];
@@ -499,11 +513,14 @@ function draw(result) {
             for (var i = 0; i < species.length; i++) {
                 if (d.species == species[i]) {
                     svg.append("text")
+                        .style("font", "14px sans-serif")
                         .attr("stroke", color(d.species))
                         .attr("x", 10)
                         .attr("y", py)
                         .text(d.species)
 
+                    //forward one step to get distinct color
+                    color(d.species+1);
                     py = py + 20;
                     species[i] = "";
                     break;
@@ -528,6 +545,13 @@ function draw(result) {
             for (var i = 0; i < reqds.length; i++) {
                 if (d.name === reqds[i]) {
                     return "red";
+                }
+            }
+        })
+        .style("r", function (d) {
+            for (var i = 0; i < reqds.length; i++) {
+                if (d.name === reqds[i]) {
+                    return 8;
                 }
             }
         });
