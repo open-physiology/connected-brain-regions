@@ -21,7 +21,7 @@ d3.json("data.json", function (data) {
         checkbox.id = nodes[i];
         checkbox.type = "checkbox";
 
-        var label = document.createElement("output");
+        var label = document.createElement("label");
         label.appendChild(document.createTextNode(checkbox.id));
 
         checkbox.onclick = function () {
