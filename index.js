@@ -95,7 +95,7 @@ function test(a, b, c) {
     });
 
     console.log(result);
-    console.log(reqds)
+    console.log(reqds);
     return result;
 }
 
@@ -222,105 +222,106 @@ function steiner(nodes, edges, required) {
      * "permanent".  Solution will be the union of such "permanent"
      * paths.
      */
+    var i, fNonemptyFifo;
     while (solved_reqds < reqds) {
         /*
-         * If we haven't solved enough nodes yet, do some more
-         * breadth-first searching
+         * Let the breadth-first searching continue until
+         * something is found or until exhaustion (exhaustion
+         * will occur when all the unsolved required nodes
+         * have empty FIFOs).
          */
-        var fNonemptyFifo;
-        while (true) {
+        fNonemptyFifo = false;
+        console.log("START FROM HERE");
+        for (i = 0; i < xnodes.length; i++) {
             /*
-             * Let the breadth-first searching continue until
-             * something is found or until exhaustion (exhaustion
-             * will occur when all the unsolved required nodes
-             * have empty FIFOs).
+             * For each i:  Carry out one step of the BFS
+             * corresponding to the ith required node
+             * (Unless that node is already on a "permanent"
+             * path which means it's already solved)
              */
-            var i;
-            fNonemptyFifo = false;
-            for (i = 0; i < xnodes.length; i++) {
-                /*
-                 * For each i:  Carry out one step of the BFS
-                 * corresponding to the ith required node
-                 * (Unless that node is already on a "permanent"
-                 * path which means it's already solved)
-                 */
-                var n = xnodes[i];
-                if (!n.reqd)
-                    continue;
-                if (n.fifo.isEmpty() || n.in_permanent_web)
-                    continue;
-                fNonemptyFifo = true;
-                var ppath = n.fifo.shift();
-                /*
-                 * Edges with weight W are required to go through
-                 * the queue W times before they get acknowledged
-                 *
-                 * Note: ppath stands for "pointed path"
-                 */
-                if (ppath.endweight > 1) {
-                    ppath.endweight--;
-                    n.fifo.push(ppath);
-                    continue;
-                }
-                var p = ppath.point;
-                var path = ppath.path;
+            var n = xnodes[i];
+            if (!n.reqd)
+                continue;
+            if (n.fifo.isEmpty() || n.in_permanent_web)
+                continue;
 
-                /*
-                 * If temporary path from required node n meets required
-                 * node m (either directly, or by meeting a permanent path
-                 * spawned by m) then it solves n.  If the meeting was
-                 * direct, and m was not previously solved, then the path
-                 * solves m too.
-                 */
-                if ((p.reqd && p !== n) || p.in_permanent_web) {
-                    soln = soln.concat(path);
-                    path.forEach(function (step) {
-                        step.from.in_permanent_web = true;
-                    });
-                    if (p.in_permanent_web)
-                        solved_reqds++;
-                    else {
-                        p.in_permanent_web = true;
-                        solved_reqds += 2;
-                    }
-                    continue;
+            console.log(n.node);
+            fNonemptyFifo = true;
+            var ppath = n.fifo.shift();
+
+            /*
+             * Edges with weight W are required to go through
+             * the queue W times before they get acknowledged
+             *
+             * Note: ppath stands for "pointed path"
+             */
+            if (ppath.endweight > 1) {
+                ppath.endweight--;
+                n.fifo.push(ppath);
+                continue;
+            }
+            var p = ppath.point;
+            var path = ppath.path;
+
+            /*
+             * If temporary path from required node n meets required
+             * node m (either directly, or by meeting a permanent path
+             * spawned by m) then it solves n.  If the meeting was
+             * direct, and m was not previously solved, then the path
+             * solves m too.
+             */
+            if ((p.reqd && p !== n) || p.in_permanent_web) {
+                soln = soln.concat(path);
+                path.forEach(function (step) {
+                    step.from.in_permanent_web = true;
+                });
+                if (p.in_permanent_web) {
+                    solved_reqds++;
                 }
-                /*
-                 * If a temporary path from required node n
-                 * indirectly meets required node m by meeting
-                 * a temporary path spawned by m, then the
-                 * union of the two temporary paths solves both
-                 * n and m.
-                 */
-                if (p.in_temporary_web) {
-                    /*
-                     * ...unless n=m in which case then the temporary
-                     * path has collided with itself: stop growing it.
-                     */
-                    if (p.witness.node === n) continue;
-                    new_edges = path.concat(p.witness.path);
-                    soln = soln.concat(new_edges);
-                    new_edges.forEach(function (step) {
-                        step.from.in_permanent_web = true;
-                    });
+                else {
                     p.in_permanent_web = true;
                     solved_reqds += 2;
-                    break;
                 }
-                p.in_temporary_web = true;
-                p.witness = {node: n, path: path};
-                var j;
-                for (j = 0; j < p.outgoing.length; j++) {
-                    var outgoing = p.outgoing[j];
-                    new_path = path.concat([outgoing]);
-                    new_ppath = {point: outgoing.to, path: new_path, endweight: outgoing.weight};
-                    n.fifo.push(new_ppath);
-                }
+                continue;
             }
-            if (!fNonemptyFifo || i < xnodes.length)
-                break;
+            /*
+             * If a temporary path from required node n
+             * indirectly meets required node m by meeting
+             * a temporary path spawned by m, then the
+             * union of the two temporary paths solves both
+             * n and m.
+             */
+            if (p.in_temporary_web) {
+                /*
+                 * ...unless n=m in which case then the temporary
+                 * path has collided with itself: stop growing it.
+                 */
+                if (p.witness.node === n) continue;
+                var new_edges = path.concat(p.witness.path);
+                soln = soln.concat(new_edges);
+                new_edges.forEach(function (step) {
+                    step.from.in_permanent_web = true;
+                });
+                if (!n.in_permanent_web && !p.witness.node.in_permanent_web) {
+                    solved_reqds += 2;
+                }
+                else {
+                    solved_reqds++;
+                }
+                p.in_permanent_web = true;
+                continue;
+            }
+            p.in_temporary_web = true;
+            p.witness = {node: n, path: path};
+            var j;
+            for (j = 0; j < p.outgoing.length; j++) {
+                var outgoing = p.outgoing[j];
+                new_path = path.concat([outgoing]);
+                new_ppath = {point: outgoing.to, path: new_path, endweight: outgoing.weight};
+                n.fifo.push(new_ppath);
+            }
         }
-        if (!fNonemptyFifo)
+        if (!fNonemptyFifo || i < xnodes.length)
             break;
     }
 
@@ -331,6 +332,7 @@ function steiner(nodes, edges, required) {
      * components and if we succeed, recurse and try again.
      * Needs improvement.
      */
+
     soln = connect(soln, xedges, xnodes);
 
     /*
@@ -458,12 +460,13 @@ function draw(result) {
         .attr("height", height)
         .append("g");
 
-    function updateWindow(){
+    function updateWindow() {
         width = window.innerWidth;
         height = window.innerHeight;
 
         svg.attr("width", width).attr("height", height);
     }
+
     window.onresize = updateWindow;
 
     var color = d3.scale.category20();
@@ -477,7 +480,7 @@ function draw(result) {
         .on("tick", tick)
         .start();
 
-    // build the arrow.
+    //build the arrow.
     //svg.append("svg:defs").selectAll("marker")
     //    .data(["end"])      // Different link/path types can be defined here
     //    .enter().append("svg:marker")    // This section adds in the arrows
@@ -520,7 +523,7 @@ function draw(result) {
                         .text(d.species)
 
                     //forward one step to get distinct color
-                    color(d.species+1);
+                    color(d.species + 1);
                     py = py + 20;
                     species[i] = "";
                     break;
