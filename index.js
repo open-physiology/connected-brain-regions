@@ -5,48 +5,36 @@
 var nodes = [];
 var edges = [];
 var reqds = [];
-
 /*
  * Main Tasks:
  *   scanning nodes and edges from data.json and saving them in nodes and edges array.
  *   creating checkboxes for each node and then adding them in a label.
  */
-
 d3.json("data.json", function (data) {
     var brainList = document.getElementById("brainlist");
-    var count = 0;
-    for (var i = 0; i < data["nodes"].length; i++) {
+    var i, chkBox, button, label = [];
+    for (i = 0; i < data["nodes"].length; i++) {
         nodes[i] = data["nodes"][i];
-        var checkbox = document.createElement("input");
-        checkbox.id = nodes[i];
-        checkbox.type = "checkbox";
-
-        var label = document.createElement("label");
-        label.appendChild(document.createTextNode(checkbox.id));
-
-        checkbox.onclick = function () {
-            if (this.checked == true) {
-                console.log(this.id);
-                reqds[count] = this.id;
-                count++;
-            }
-            else {
-                var index = reqds.indexOf(this.id);
-                reqds.splice(index, 1);
-                this.checked = false;
-            }
-        }
-
-        var button = document.getElementById("calculate");
-        button.onclick = function () {
-            d3.select("svg").remove();
-            var result = test(nodes, edges, reqds);
-            draw(result);
-        }
-
-        brainList.appendChild(checkbox);
-        brainList.appendChild(label);
+        label[i] = document.createElement("label");
+        label[i].innerHTML = '<input id="nodes[i]" type="checkbox" value="nodes[i]"><label for="nodes[i]">' + nodes[i] + '</label>';
+        brainList.appendChild(label[i]);
         brainList.appendChild(document.createElement("br"));
+    }
+
+    button = document.getElementById("calculate");
+    button.onclick = function () {
+        d3.select("svg").remove();
+        reqds = [];
+
+        chkBox = document.getElementsByTagName('input');
+        for (i = 0; i < label.length; i++) {
+            if (chkBox[i].checked) {
+                reqds.push(label[i].innerText);
+            }
+        }
+
+        var result = test(nodes, edges, reqds);
+        draw(result);
     }
 
     for (var j = 0; j < data["edges"].length; j++) {
@@ -88,9 +76,7 @@ function test(a, b, c) {
     b = b.concat(reverse_edges);
 
     var result = steiner(a, b, c);
-    var counter = 0;
     result = result.map(function (e) {
-        counter++;
         return [e.from, e.to, e.weight, e.species];
     });
 
@@ -231,7 +217,6 @@ function steiner(nodes, edges, required) {
          * have empty FIFOs).
          */
         fNonemptyFifo = false;
-        console.log("START FROM HERE");
         for (i = 0; i < xnodes.length; i++) {
             /*
              * For each i:  Carry out one step of the BFS
@@ -245,7 +230,6 @@ function steiner(nodes, edges, required) {
             if (n.fifo.isEmpty() || n.in_permanent_web)
                 continue;
 
-            console.log(n.node);
             fNonemptyFifo = true;
             var ppath = n.fifo.shift();
 
@@ -497,7 +481,6 @@ function draw(result) {
     //filter unique species from the result
     var species = [];
     var py = 20;
-    console.log(py);
 
     for (var i = 0; i < result.length; i++) {
         species[i] = result[i][3];
