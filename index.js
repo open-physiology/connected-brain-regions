@@ -82,6 +82,7 @@ function test(a, b, c) {
 
     console.log(result);
     console.log(reqds);
+
     return result;
 }
 
@@ -99,7 +100,6 @@ function test(a, b, c) {
 function steiner(nodes, edges, required) {
     var xnodes = [];
     var xedges = [];
-
     /*
      * Make copies of nodes and edges that can be annotated,
      * and annotate them.
@@ -305,7 +305,8 @@ function steiner(nodes, edges, required) {
                 n.fifo.push(new_ppath);
             }
         }
-        if (!fNonemptyFifo || i < xnodes.length)
+
+        if (!fNonemptyFifo)
             break;
     }
 
