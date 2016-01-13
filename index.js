@@ -413,6 +413,7 @@ function connect(soln, xedges, xnodes) {
  * D3 function to draw the required edges, i.e., connected brain regions
  */
 function draw(result) {
+    console.log("Hello");
     var links = [];
     for (var i = 0; i < result.length; i++) {
         links.push({
@@ -443,15 +444,13 @@ function draw(result) {
     var svg = d3.select("#svgVisualize").append("svg")
         .attr("width", width)
         .attr("height", height)
-        .append("g");
+        .append("g")
 
     function updateWindow() {
         width = window.innerWidth;
         height = window.innerHeight;
-
         svg.attr("width", width).attr("height", height);
     }
-
     window.onresize = updateWindow;
 
     var color = d3.scale.category20();
