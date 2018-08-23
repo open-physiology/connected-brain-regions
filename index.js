@@ -437,6 +437,9 @@ function draw(result) {
         //console.log(link.target);
     });
 
+    console.log("ndoe.append: ", nodes);
+    console.log("ndoe.append: ", links);
+
     var g = document.getElementById("#svgVisualize"),
         width = window.innerWidth,
         height = window.innerHeight;
@@ -451,6 +454,7 @@ function draw(result) {
         height = window.innerHeight;
         svg.attr("width", width).attr("height", height);
     }
+
     window.onresize = updateWindow;
 
     var color = d3.scale.category20();
@@ -553,9 +557,14 @@ function draw(result) {
     // add the curvy lines
     function tick() {
         path.attr("d", function (d) {
+
+            // Total difference in x and y from source to target
             var dx = d.target.x - d.source.x,
-                dy = d.target.y - d.source.y,
-                dr = Math.sqrt(dx * dx + dy * dy);
+                dy = d.target.y - d.source.y;
+
+            // Length of path from center of source node to center of target node
+            var dr = Math.sqrt(dx * dx + dy * dy);
+
             return "M" +
                 d.source.x + "," +
                 d.source.y + "A" +
